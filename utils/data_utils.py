@@ -39,7 +39,7 @@ def data_generator(lines, batch_size, input_shape, num_classes, anchors=None, us
             image1, box1 = get_data(lines[i], input_shape, use_bb=use_bb)
             real_box1 = box1[~np.all(box1 == 0, axis=1)]
 
-            # CutMix
+            # LogoMix
             if use_logomix and real_box1.shape[0] < 20:
 
                 # Convert single-points into fake boxes
@@ -76,13 +76,13 @@ def data_generator(lines, batch_size, input_shape, num_classes, anchors=None, us
 
                     else:
 
-                        # CutMix percentage = 0 ==> Crop must not touch any box of image1
+                        # LogoMix percentage = 0 ==> Crop must not touch any box of image1
                         if logomix_perc == 0:
                             mask = np.ones(np.array(image1.size) + [crop_h, crop_w])
                             for box in real_box1:
                                 mask[max(0, box[1] - crop_h):box[3], max(0, box[0] - crop_w):box[2]] = 0
 
-                        # CutMix percentage > 0 ==> Search where crop can be inserted such that overlapping is fulfilled
+                        # LogoMix percentage > 0 ==> Search where crop can be placed such that overlapping is fulfilled
                         else:
 
                             # We can assume that crops can be placed partially outside of the image
@@ -111,7 +111,7 @@ def data_generator(lines, batch_size, input_shape, num_classes, anchors=None, us
                                 if y2[j] < mask.shape[0] - crop_h:
                                     mask[y2[j], max(x1[j], 0):min(x2[j], mask.shape[1] - crop_w)] = 1
 
-                            # If Careful CutMix, crop overlap = percent with 1 box and <= percent with the other boxes
+                            # If Attentive LogoMix, crop overlap = percent with 1 box and <= percent with other boxes
                             if use_attentive:
                                 for j in range(real_box1.shape[0]):
                                     mask[y1[j] + 1:y2[j] - 1, x1[j] + 1:x2[j] - 1] = 0

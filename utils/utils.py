@@ -46,6 +46,8 @@ def get_classes(classes_path):
         classes_path: path to file containing the list of classes.
     Outputs: list of the classes.
     """
+    if not os.path.exists(classes_path):
+        return ['object']
     with open(classes_path) as f:
         class_names = f.readlines()
     class_names = [c.strip() for c in class_names]
@@ -187,7 +189,7 @@ def get_model(input_shape, num_classes, anchors=None, use_bb=True, restore_model
         arguments={
             'anchors': anchors,
             'num_classes': num_classes,
-            'ignore_thresh': 0.5 if not tiny_yolo else 0.7
+            'ignore_thresh': (0.5 if not tiny_yolo else 0.7) if use_bb else 16.
         }
     )([*model_body.output, *y_true])
 
@@ -226,7 +228,9 @@ def get_data(annotation_line, input_shape, use_bb=True, max_boxes=20):
     new_image.paste(image, (0, 0))
 
     box_data = np.zeros((max_boxes, 5)) if use_bb else np.zeros((max_boxes, 3))
-    box = np.array([np.array(list(map(int, box.split(',')))) for box in line[1:]])
+    box = np.array([np.array(list(map(float, box.split(',')))) for box in line[1:]])
+    if len(box) > 0 & ((use_bb & box.shape[-1] == 4) or (not use_bb & box.shape[-1] == 2)):
+        box = np.concatenate((box, np.zeros(box.shape)[..., 0, None]), axis=-1)
     if len(box) > 0:
         if use_bb:
             box[:, [0, 2]] = box[:, [0, 2]] * w / iw

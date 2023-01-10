@@ -50,21 +50,32 @@ class YOLO(object):
 
         # Load model, or construct model and load weights.
         model_path = os.path.expanduser(self.model_path)
-        num_anchors = len(self.anchors)
         num_classes = len(self.class_names)
-        tiny_yolo = num_anchors == 6  # default setting
-        try:
-            self.model = load_model(model_path, compile=False)
-        except:
-            self.model = tiny_yolo_body(Input(shape=(None, None, 3)), num_anchors // 2, num_classes) \
-                if tiny_yolo else yolo_body(Input(shape=(None, None, 3)), num_anchors // 3, num_classes) \
-                if self.use_bb else yolo_body_single_point(Input(shape=(None, None, 3)), num_classes)
-            self.model.load_weights(self.model_path)  # make sure model, anchors and classes match
+        if self.use_bb:
+            num_anchors = len(self.anchors)
+            tiny_yolo = num_anchors == 6  # default setting
+            try:
+                self.model = load_model(model_path, compile=False)
+            except:
+                self.model = tiny_yolo_body(Input(shape=(None, None, 3)), num_anchors // 2, num_classes) \
+                    if tiny_yolo else yolo_body(Input(shape=(None, None, 3)), num_anchors // 3, num_classes)
+                self.model.load_weights(self.model_path)  # make sure model, anchors and classes match
+            else:
+                assert self.model.layers[-1].output_shape[-1] == \
+                       num_anchors / len(self.model.output) * (num_classes + 5), \
+                    'Mismatch between model and given anchor and class sizes'
+            print('{} model, {} anchors, and {} classes loaded.'.format(model_path, num_anchors, num_classes))
         else:
-            assert self.model.layers[-1].output_shape[-1] == \
-                num_anchors / len(self.model.output) * (num_classes + 5), \
-                'Mismatch between model and given anchor and class sizes'
-        print('{} model, {} anchors, and {} classes loaded.'.format(model_path, num_anchors, num_classes))
+            try:
+                self.model = load_model(model_path, compile=False)
+            except:
+                self.model = yolo_body_single_point(Input(shape=(None, None, 3)), num_classes)
+                self.model.load_weights(self.model_path)  # make sure model, anchors and classes match
+            else:
+                assert self.model.layers[-1].output_shape[-1] == \
+                       1 / len(self.model.output) * (num_classes + 3), \
+                    'Mismatch between model and given anchor and class sizes'
+            print('{} model and {} classes loaded.'.format(model_path, num_classes))
 
         # Generate output tensor targets for filtered bounding boxes.
         if self.num_gpu >= 2:

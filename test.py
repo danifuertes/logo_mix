@@ -14,7 +14,7 @@ from yolo3.yolo import YOLO
 # Constants
 TEST_PHASE = 0
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 
 def main(opts):
@@ -66,16 +66,19 @@ def main(opts):
         path, gt = split[0], split[1:]
 
         # Save the ground-truth on a txt (one txt per image)
-        filename = path.replace("/", "_").replace(opts.extension, ".txt")
+        filename = path.replace("/", "_").replace('.jpg', ".txt").replace('.png', ".txt")
         results = open(os.path.join(gt_dir, filename), 'w')
         for g in gt:
             marker = g.split(',')
-            results.write(' '.join([class_names[int(marker[-1])], *marker[:-1]]) + '\n')
+            if len(class_names) > 1:
+                results.write(' '.join([class_names[int(marker[-1])], *marker[:-1]]) + '\n')
+            else:
+                results.write(' '.join([class_names[0], *marker]) + '\n')
         results.close()
 
         # Load image
         try:
-            img = Image.open(path)
+            img = Image.open(path).convert('RGB')
         except:
             print('Open Error! Try again!')
             continue
@@ -136,7 +139,7 @@ def main(opts):
                     # Plot prediction
                     if opts.show_pred or opts.save_image:
                         x, y = int(x), int(y)
-                        label_size = draw.textsize(label, font)
+                        label_size = draw.textsize(pred, font)
                         if y - label_size[1] >= 0:
                             text_origin = np.array([x, y - label_size[1]])
                         else:
@@ -144,7 +147,7 @@ def main(opts):
                         r = 10
                         draw.ellipse([x - r, y - r, x + r, y + r], fill=(0, 255, 0))
                         draw.rectangle([tuple(text_origin), tuple(text_origin + label_size)], fill=(0, 255, 0))
-                        draw.text(text_origin, label, fill=(0, 0, 0), font=font)
+                        draw.text(text_origin, pred, fill=(0, 0, 0), font=font)
 
             else:
                 results.write(predictions[j, 0])

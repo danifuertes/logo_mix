@@ -19,8 +19,8 @@ def get_map_options():
     # Model results
     parser.add_argument('--results_dir', type=str, default='model_date_test_date',
                         help="Folder with the results of test.py")
-    parser.add_argument('--img_width', type=int, default=448, help="Target Image Width")
-    parser.add_argument('--img_height', type=int, default=448, help="Target Image Height")
+    parser.add_argument('iw', '--img_width', type=int, default=448, help="Target Image Width")
+    parser.add_argument('ih', '--img_height', type=int, default=448, help="Target Image Height")
 
     # Bounding boxes or point-based detections
     parser.add_argument('--use_bb', type=str2bool, default=True,

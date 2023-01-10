@@ -72,7 +72,7 @@ def get_options(args=None):
 
     # Batch size
     parser.add_argument('--batch_frozen', type=int, default=32, help='Batch size during the frozen stage')
-    parser.add_argument('--batch_unfrozen', type=int, default=8, help='Batch size during the unfrozen stage')
+    parser.add_argument('--batch_unfrozen', type=int, default=16, help='Batch size during the unfrozen stage')
 
     # Learning rate
     parser.add_argument('--lr_frozen', type=float, default=1e-3, help='Initial learning rate for the frozen stage')
@@ -138,8 +138,6 @@ def get_options(args=None):
     opts.classes_path = os.path.join(opts.dataset_path, opts.dataset_name, opts.classes_path)
 
     # Check everything is ok
-
-    # Check everything is correct
     assert opts.image_width > 0 and opts.image_height > 0, "img_width and img_height must be positive integers"
     assert opts.image_width % 32 == 0 and opts.image_height % 32 == 0, "Multiples of 32 required for the image shape"
     assert opts.batch_frozen > 0 or opts.lr_frozen > 0 or opts.batch_unfrozen > 0 or opts.lr_unfrozen > 0,\

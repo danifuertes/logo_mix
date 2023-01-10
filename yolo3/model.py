@@ -628,7 +628,7 @@ def yolo_loss(args, anchors, num_classes, ignore_thresh=.5, print_loss=False):
     return loss
 
 
-def yolo_loss_single_point(args, num_classes, ignore_thresh=.5, print_loss=False):
+def yolo_loss_single_point(args, num_classes, ignore_thresh=.5, print_loss=False, **kwargs):
     """
     Return yolo_loss tensor
 

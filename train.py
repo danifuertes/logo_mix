@@ -56,7 +56,7 @@ def main(opts):
                           use_bb=opts.use_bb)
 
     # Create model
-    tiny_yolo = len(anchors) == 6  # Tiny version of YoloV3 (faster but no so accurate)
+    tiny_yolo = len(anchors) == 6 if opts.use_bb else False  # Tiny version of YoloV3 (faster but no so accurate)
     if not opts.weights_path == 'yolo3/yolo_weights.h5':
         weights_path = os.path.join(opts.save_dir, opts.weights_path) if opts.restore_model else ''
     else:
@@ -90,7 +90,8 @@ def main(opts):
             'batch': opts.batch_unfrozen,
             'lr': opts.lr_unfrozen,
             'epochs': opts.epochs_unfrozen,
-            'initial_epoch': opts.initial_epoch if opts.restore_model else opts.epochs_unfrozen
+            'initial_epoch': opts.initial_epoch if opts.restore_model or not opts.train_frozen \
+                                                else opts.epochs_frozen + opts.initial_epoch
         }
     assert len(train_stages) > 0, "Either train_frozen or train_unfrozen must be True"
 
