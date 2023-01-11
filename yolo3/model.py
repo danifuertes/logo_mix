@@ -670,8 +670,8 @@ def yolo_loss_single_point(args, num_classes, ignore_thresh=.5, print_loss=False
         def loop_body(b, ignore_mask):
             true_box = tf.boolean_mask(y_true[l][b, ..., 0:2], object_mask_bool[b, ..., 0])
             dist = distance(pred_box[b], true_box)
-            best_dist = K.max(dist, axis=-1)
-            ignore_mask = ignore_mask.write(b, K.cast(best_dist < ignore_thresh, K.dtype(true_box)))
+            best_dist = K.min(dist, axis=-1)
+            ignore_mask = ignore_mask.write(b, K.cast(best_dist > ignore_thresh, K.dtype(true_box)))
             return b + 1, ignore_mask
 
         _, ignore_mask = K.control_flow_ops.while_loop(lambda b, *args: b < m, loop_body, [0, ignore_mask])

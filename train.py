@@ -61,8 +61,9 @@ def main(opts):
         weights_path = os.path.join(opts.save_dir, opts.weights_path) if opts.restore_model else ''
     else:
         weights_path = opts.weights_path
+    th = opts.i_th if opts.use_bb else opts.d_th / max(*input_shape)
     model = get_model(input_shape, num_classes, anchors=anchors, use_bb=opts.use_bb, restore_model=opts.restore_model,
-                      weights_path=weights_path, freeze_body=2, tiny_yolo=tiny_yolo, num_gpu=opts.num_gpu)
+                      weights_path=weights_path, freeze_body=2, tiny_yolo=tiny_yolo, num_gpu=opts.num_gpu, iou_th=th)
 
     # Callbacks
     hist_callback = HistoryCallback(log_dir)

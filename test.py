@@ -6,7 +6,7 @@ from tensorflow.keras import backend as K
 from tensorflow.keras.utils import Progbar
 from PIL import ImageDraw, ImageFont, Image
 
-from utils.utils import get_model, get_lines, get_anchors, get_classes
+from utils.utils import get_lines, get_anchors, get_classes
 from options import get_options
 from yolo3.yolo import YOLO
 
@@ -47,7 +47,7 @@ def main(opts):
     anchors = get_anchors(opts.anchors_path, new_anchors=False, use_bb=opts.use_bb)
 
     # Load YoloV3 model
-    threshold = opts.iou_threshold if opts.use_bb else opts.dist_threshold
+    threshold = opts.iou_threshold if opts.use_bb else opts.dist_threshold / max(opts.image_width, opts.image_height)
     weights_path = os.path.join(opts.save_dir, opts.weights_path)
     yolo = YOLO(weights_path, class_names, anchors=anchors, image_shape=input_shape, use_bb=opts.use_bb, iou=threshold,
                 score=opts.score_threshold)

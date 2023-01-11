@@ -88,7 +88,7 @@ def load_weights(model, path):
 
 
 def get_model(input_shape, num_classes, anchors=None, use_bb=True, restore_model=True, weights_path='', freeze_body=2,
-              tiny_yolo=False, num_gpu=1):
+              tiny_yolo=False, num_gpu=1, iou_th=.5):
     """
     Creates the training YoloV3 model.
     Arguments:
@@ -101,6 +101,7 @@ def get_model(input_shape, num_classes, anchors=None, use_bb=True, restore_model
         freeze_body: freeze all the layers except from the output layers.
         tiny_yolo: True to load Tiny YoloV3 model.
         num_gpu: number of GPUs.
+        iou_th: IoU threshold (for boxes) or Distance threshold (for points).
     Outputs:
         model: YOLOv3 model.
     """
@@ -189,7 +190,7 @@ def get_model(input_shape, num_classes, anchors=None, use_bb=True, restore_model
         arguments={
             'anchors': anchors,
             'num_classes': num_classes,
-            'ignore_thresh': (0.5 if not tiny_yolo else 0.7) if use_bb else 16.
+            'ignore_thresh': iou_th if not tiny_yolo else 0.7
         }
     )([*model_body.output, *y_true])
 
