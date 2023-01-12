@@ -145,7 +145,7 @@ def data_generator(lines, batch_size, input_shape, num_classes, anchors=None, us
 
             # Transform image
             if data_aug:
-                image1, box1 = data_augmentation(image1, box1)
+                image1, box1 = data_augmentation(image1, box1, use_bb=use_bb)
             image1 = pil2numpy(image1)
 
             # Append image and its labels to the batch
