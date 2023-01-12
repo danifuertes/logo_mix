@@ -230,7 +230,7 @@ def get_data(annotation_line, input_shape, use_bb=True, max_boxes=20):
 
     box_data = np.zeros((max_boxes, 5)) if use_bb else np.zeros((max_boxes, 3))
     box = np.array([np.array(list(map(float, box.split(',')))) for box in line[1:]])
-    if len(box) > 0 & ((use_bb & box.shape[-1] == 4) or (not use_bb & box.shape[-1] == 2)):
+    if len(box) > 0 and ((use_bb and box.shape[-1] == 4) or ((not use_bb) and box.shape[-1] == 2)):
         box = np.concatenate((box, np.zeros(box.shape)[..., 0, None]), axis=-1)
     if len(box) > 0:
         if use_bb:
